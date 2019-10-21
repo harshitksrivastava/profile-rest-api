@@ -10,6 +10,8 @@ from profiles_api import serializers
 from profiles_api import models
 
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.settings import api_settings
 from rest_framework import filters
 
 
@@ -57,6 +59,7 @@ class HelloApiView(APIView):
         return Response({'method':'DELETE'})
 
 
+
 class HelloViewSet(viewsets.ViewSet):
     """ Test API ViewSet"""
     serializer_class = serializers.HelloSerializer
@@ -86,11 +89,9 @@ class HelloViewSet(viewsets.ViewSet):
         """handle getting an object by its ID"""
         return Response({'http_method':'GET'})
 
-
     def update(self,request,pk=None):
         """Handle updating an object"""
         return Response({'http_method':'PUT'})
-
 
     def partial_update(self,request,pk=None):
         """ Handle updating part of an object """
@@ -98,7 +99,7 @@ class HelloViewSet(viewsets.ViewSet):
 
     def destroy(self,request,pk=None):
         """handle removing an object"""
-        return Response({'http_method':'DELETE'})
+        return Response({'http_method': 'DELETE'})
 
 
 
@@ -110,3 +111,20 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.UpdateOwnProfile,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name','email',)
+
+
+# Other views have this by default but in ObtainAuthToken we have to manually include it
+class UserLoginApiView(ObtainAuthToken):
+    """handle creating user authentication tokens"""
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+
+class UserProfileFeedViewSet(viewsets.ModelViewSet):
+    """Handle creating, reading and updating profile feed items"""
+    authentication_classes = (TokenAuthentication,)
+    serializer_class = serializers.ProfileFeedItemSerializer
+    query_set = models.ProfileFeedItem.objects.all()
+
+    def perform_create(self,serializer):
+        """sets the user profile to the logged in user"""
+        serializer.save(user_profile=self.request.user)

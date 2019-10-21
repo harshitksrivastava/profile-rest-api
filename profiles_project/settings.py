@@ -37,12 +37,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'profiles_api',
     'rest_framework',
     'rest_framework.authtoken',
+    'profiles_api',
 ]
 
-MIDDLEWARE = [
+REST_FRAMEWORK ={
+'DEFAULT_AUTHENTICATION_CLASSES':[
+    'rest_framework.authentication.BasicAuthentication',
+    'rest_framework.authentication.SessionAuthentication',
+]
+}
+
+
+MIDDLEWARE  = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

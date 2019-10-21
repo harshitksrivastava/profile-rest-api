@@ -3,6 +3,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
+
+from django.conf import settings
+
 # Create your models here.
 
 
@@ -36,12 +39,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
-
     objects = UserProfileManager()
 # as we are over-riding default username field with email ...So,
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
-
 
     def get_full_name(self):
         """retrieve full name of the user"""
@@ -54,3 +55,17 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         """return string representation of the user"""
         return self.email
+
+#feed Item model
+class ProfileFeedItem(models.Model):
+    """Profile status update"""
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                on_delete=models.CASCADE
+    )
+    status_text = models.CharField(max_length=255)
+    created_on = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        """Return the model as a string"""
+        return self.status_text
